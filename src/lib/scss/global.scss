@@ -1,0 +1,123 @@
+:root {
+    // Misc
+    box-sizing: border-box;
+    text-decoration: none;
+
+    // Font Sizes
+    --font-size-xsm: clamp(0.56rem, 0.18vw + 0.52rem, 0.74rem);
+    --font-size-sm: clamp(0.7rem, 0.26vw + 0.63rem, 0.96rem);
+    --font-size-base: clamp(0.88rem, 0.5vw + 0.78rem, 1.25rem);
+    --font-size-md: clamp(1.09rem, 0.53vw + 0.96rem, 1.63rem);
+    --font-size-lg: clamp(1.37rem, 0.75vw + 1.18rem, 2.11rem);
+    --font-size-xl: clamp(1.71rem, 1.04vw + 1.45rem, 2.75rem);
+    --font-size-xxl: clamp(2.14rem, 1.43vw + 1.78rem, 3.57rem);
+    --font-size-xxxl: clamp(2.67rem, 1.97vw + 2.18rem, 4.64rem);
+    --baseFont: var(--font-size-base);
+
+    // Padding
+    --padding: var(--baseFont);
+    --halfPadding: calc(0.5 * var(--padding));
+    --quatPadding: calc(0.25 * var(--padding));
+    --largePadding: calc(2 * var(--padding));
+    --extraLargePadding: calc(3 * var(--padding));
+    --extraextraLargePadding: calc(4 * var(--padding));
+    --radius: var(--padding);
+
+    // Colours
+    --white: #f1ead1;
+    --black: #1e1e1e;
+    --orange: #f97a32;
+    --green: #025e69;
+    --red: #f93232;
+    --lightBlue: #a5d4ff;
+
+    color: var(--black);
+
+    // Borders
+    --majorBorder: solid calc(0.4 * var(--extraSmallFont)) var(--black);
+    --minorBorder: solid calc(0.2 * var(--extraSmallFont)) var(--black);
+
+    // Shadows
+    --shadowS: 0 1px 4px rgba(0, 0, 0, 0.37);
+    --shadowM: 0 2px 2px rgba(0, 0, 0, 0.2), 0 6px 10px rgba(0, 0, 0, 0.3);
+    --shadowL: 0 11px 7px rgba(0, 0, 0, 0.16), 0 13px 25px rgba(0, 0, 0, 0.3);
+    --shadowXL: 0 14px 12px rgba(0, 0, 0, 0.17), 0 20px 40px rgba(0, 0, 0, 0.3);
+    --shadowXXL:
+        0 17px 17px rgba(0, 0, 0, 0.15), 0 27px 55px rgba(0, 0, 0, 0.3);
+
+}
+
+/* Font  */
+@font-face {
+    font-display: swap;
+    font-family: 'Intro Script';
+    font-style: normal;
+    font-weight: 900;
+    src:
+        url('fonts/IntroScript-Trial-Heavy.woff') format('woff'),
+        url('fonts/IntroScript-Trial-Heavy.woff2') format('woff');
+}
+
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Inconsolata';
+    font-style: normal;
+    font-weight: 800;
+    src: url('fonts/inconsolata-v32-latin-800.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+//Other
+
+html,
+body {
+    margin: 0px;
+    padding: 0px;
+    font-size: var(--baseFont);
+    background-color: var(--bgColour);
+    max-width: 100dvw;
+    // overflow: hidden;
+    color: var(--txtColour);
+    background-color: var(--background);
+    font-family: 'Inconsolata';
+}
+
+// Scrollbar Stuff
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*::-webkit-scrollbar {
+    width: var(--quatPadding);
+    display: none;
+}
+* {
+    scrollbar-width: none;
+    scrollbar-color: var(--txtColour) var(--bgColour);
+    box-sizing: border-box;
+}
+*::-webkit-scrollbar-track {
+    background: var(--bgColour);
+}
+*::-webkit-scrollbar-thumb {
+    background-color: var(--txtColour);
+    border-radius: 6px;
+    border: 1px solid var(--bgColour);
+}
+
+// utility classes
+
+h2 {
+    font-family: 'Intro Script';
+    font-size: calc(1.2 * var(--font-size-xxl));
+    -webkit-text-stroke: calc(0.5 * var(--padding)) var(--white);
+    color: var(--orange);
+    paint-order: stroke fill;
+    text-shadow: var(--shadowS);
+    margin-bottom: var(--padding);
+}
+
+p {
+    margin-bottom: var(--padding);
+}
