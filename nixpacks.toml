@@ -1,4 +1,4 @@
 [phases.setup]
-nixPkgs = [
-'nodejs_18'
+nixPkgs = ["...",
+"nodejs_18"
 ]
