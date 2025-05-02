@@ -2,17 +2,18 @@ import type { PageServerLoad } from './$types'
 import allGames from '$lib/allGames.json'
 import { randomIntFromInterval } from '$lib/Funcs'
 import type { GameType, PocketImageRecord } from '$lib/types'
-import { POCKET_PASS, POCKET_USER } from '$env/static/private'
+import { POCKET_PASS, POCKET_USER,POCKET_URL } from '$env/static/private'
 import PocketBase from 'pocketbase'
-import { PUBLIC_POCKET_URL } from '$env/static/public'
 
 export const load: PageServerLoad = (async ({ params }) => {
+
+    console.log('hi')
     // Get aLL Games From ARRAY
     const games = allGames as GameType[]
     let game = games[games.length % Number(params.id)]
 
     // Set up pocketbase instance (See env)
-    const pb = new PocketBase(PUBLIC_POCKET_URL)
+    const pb = new PocketBase(POCKET_URL)
 
     // Function for getting image urls
     const generateURL = (record: any, id: string) => {
@@ -69,7 +70,6 @@ export const load: PageServerLoad = (async ({ params }) => {
                   ]
                 : null
 
-        console.log(record.story)
         images.push(record)
     }
     return {

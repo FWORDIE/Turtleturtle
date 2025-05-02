@@ -17,7 +17,6 @@
     import config from '$lib/config.json'
     import { delay } from '$lib/Funcs'
     import Splash from './utils/Splash.svelte'
-    import { PUBLIC_POCKET_URL } from '$env/static/public'
 
     let { images }: { images: PocketImageRecord[] } = $props()
 
