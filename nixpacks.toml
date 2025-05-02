@@ -1,1 +1,6 @@
-nixPkgs = ['nodejs']
+[phases.setup]
+nixPkgs = [
+    'nodejs_18',
+    'curl',
+    'wget',
+]
