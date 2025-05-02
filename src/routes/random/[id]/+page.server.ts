@@ -6,6 +6,7 @@ import { POCKET_PASS, POCKET_USER,POCKET_URL } from '$env/static/private'
 import PocketBase from 'pocketbase'
 
 export const load: PageServerLoad = (async ({ params }) => {
+    console.log( POCKET_PASS, POCKET_USER,POCKET_URL )
     console.log('hi')
     // Get aLL Games From ARRAY
     const games = allGames as GameType[]
