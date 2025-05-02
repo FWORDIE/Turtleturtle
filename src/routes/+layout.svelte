@@ -3,7 +3,8 @@
     import Background from '$lib/comps/background.svelte'
     import Title from '$lib/comps/utils/title.svelte'
     import '$lib/scss/global.scss'
-    import { animationTime } from '$lib/store'
+    import { animationTime, cheat } from '$lib/store'
+
     let { children } = $props()
 
     // Tag
@@ -17,8 +18,16 @@
     $effect(() => {
         home = page.route.id == '/'
     })
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key == 'C') {
+            $cheat  = !$cheat
+        }
+        console.log(e.key)
+    }
 </script>
 
+<svelte:window onkeydown={(event) => handleKeyDown(event)} />
 <Background {home}></Background>
 
 <!-- Main Game Body -->
@@ -26,10 +35,12 @@
 <main style="--animationTime: {$animationTime}ms;">
     <div class="content">
         <Title></Title>
+        <div class="items" class:notHome={!home}>
+            {@render children()}
+        </div>
         <!-- Spacer allows for flex aniamitons between pages -->
-        <div class="spacer" class:notHome={!home}></div>
+        <!-- <div class="spacer" class:notHome={!home}></div> -->
         <!-- Slot for pages -->
-        {@render children()}
     </div>
 </main>
 
@@ -39,7 +50,7 @@
         flex-direction: column;
         padding: var(--padding);
         align-items: center;
-        justify-content: center ;
+        justify-content: center;
         min-height: 100dvh;
         padding: var(--extraLargePadding);
         transition: flex var(--animationTime) ease;
@@ -51,13 +62,21 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-        }
-        .spacer {
+            padding-bottom: calc(4 * var(--padding));
             transition: flex var(--animationTime) ease;
-            flex: 0;
+        }
+        .items {
+            transition: flex-grow var(--animationTime) ease;
+            flex-grow: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 500px;
 
             &.notHome {
-                flex: 1;
+                flex-grow: 1;
             }
         }
     }

@@ -31,6 +31,13 @@
     --red: #f93232;
     --lightBlue: #a5d4ff;
 
+    // Game Colours
+    --easy: #f0c639;
+    --med: #39a2ed;
+    --hard: #d453cf;
+    --vHard: #416B57;
+    --random: var(--white);
+
     color: var(--black);
 
     // Borders
@@ -44,7 +51,6 @@
     --shadowXL: 0 14px 12px rgba(0, 0, 0, 0.17), 0 20px 40px rgba(0, 0, 0, 0.3);
     --shadowXXL:
         0 17px 17px rgba(0, 0, 0, 0.15), 0 27px 55px rgba(0, 0, 0, 0.3);
-
 }
 
 /* Font  */

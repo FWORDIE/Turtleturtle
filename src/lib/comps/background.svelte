@@ -3,7 +3,7 @@
     import { animationTime } from '$lib/store'
     import Land from '$lib/svgs/land.svelte'
     import Sea from '$lib/svgs/sea.svelte'
-    let texture = './imgs/yan-ots-UuBR5kbvt4Y-unsplash.webp'
+    import texture from '$lib/imgs/yan-ots-UuBR5kbvt4Y-unsplash.webp'
     let { home } = $props()
 </script>
 

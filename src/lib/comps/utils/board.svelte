@@ -25,13 +25,13 @@
 
 <style lang="scss">
     .board {
-        padding: var(--padding);
+        padding:  var(--padding) var(--largePadding);
         background-color: var(--white);
-        min-width: clamp(50dvw, 50dvw, 500px);
-        max-width: calc(100% - var(--largePadding));
+        min-width: clamp(30dvw, 50dvw, calc(500px - var(--largePadding)));
         display: flex;
         align-items: center;
         justify-content: center;
+        text-align: center;
         box-shadow: var(--shadowS);
     }
 </style>

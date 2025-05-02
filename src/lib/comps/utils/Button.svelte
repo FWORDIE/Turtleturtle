@@ -1,25 +1,34 @@
 <script lang="ts">
     type style = 'default' | 'orange'
-    type url = string | undefined
+    type url = string | null
 
     let {
-        clicked = undefined,
+        clicked = null,
         style: style = 'default',
         disabled = false,
-        url: url,
+        url: url = null,
         children,
     } = $props()
 </script>
 
 {#if !url}
-    <button onclick={clicked} class={style} {disabled}>
+    <button onclick={clicked} class={style} {disabled} class:disabled>
         {@render children()}
     </button>
 {:else}
-    <a href={url} class={style}> {@render children()} </a>
+    <a href={url} class="{style}" class:disabled >{@render children()}</a>
 {/if}
 
 <style lang="scss">
+    button {
+        background: none;
+        color: inherit;
+        border: none;
+        padding: 0;
+        font: inherit;
+        cursor: pointer;
+        outline: inherit;
+    }
     button,
     a {
         --textColour: var(--black);
@@ -32,28 +41,28 @@
         border: solid 2px var(--textColour);
         box-shadow: var(--shadowM);
         color: var(--textColour);
-        transition: box-shadow 100ms,transform 100ms;
-        &.orange {
-            background-color: var(--orange);
-            color: var(--white);
-            border-color: var(--white);
-        }
+        transition:
+            box-shadow var(--animationTime),
+            transform var(--animationTime);
 
-        &:hover{
+        &:hover {
             box-shadow: var(--shadowS);
             transform: translate(0px, 2px);
         }
     }
-    button {
-        background: none;
-        color: inherit;
-        border: none;
-        padding: 0;
-        font: inherit;
-        cursor: pointer;
-        outline: inherit;
-    }
+
     a {
         text-decoration: none;
+    }
+
+    :global(button.orange, a.orange) {
+        background-color: var(--orange);
+        color: var(--white);
+        border-color: var(--white);
+    }
+
+    :global(button.disabled, a.disabled) {
+        box-shadow: var(--shadowS);
+        opacity: 0.5;
     }
 </style>

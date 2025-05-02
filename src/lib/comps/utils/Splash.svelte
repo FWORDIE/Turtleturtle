@@ -37,6 +37,7 @@
         z-index: 9;
         background-color: var(--lightBlue);
         width: calc(100% - 2 * var(--largePadding));
+        max-width: calc(500px - 2 * var(--largePadding));
         display: flex;
         align-items: center;
         justify-content: safe center;

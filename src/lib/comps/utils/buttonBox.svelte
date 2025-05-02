@@ -29,11 +29,12 @@
         width: calc(100% - (2 * var(--largePadding)));
         flex-wrap: wrap;
         gap: var(--largePadding);
-        z-index: 2;
+        z-index: 99;
     }
 
     :global(.splashScreen .buttonBox){
         position: sticky;
         bottom: 0px;
+        width: 100%;
     }
 </style>
