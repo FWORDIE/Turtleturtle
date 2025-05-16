@@ -15,7 +15,7 @@
     import { fade, scale } from 'svelte/transition'
     import Board from './utils/board.svelte'
     import config from '$lib/config.json'
-    import { delay } from '$lib/Funcs'
+    import { createShareData, delay } from '$lib/Funcs'
     import Splash from './utils/Splash.svelte'
 
     let { images }: { images: PocketImageRecord[] } = $props()
@@ -26,16 +26,19 @@
     let gameOverPop = $state(false)
     let gameWonPop = $state(false)
     let ready = $state(false)
-
+    let shareText = $state('Share')
     let incorrects: string[] = $state([])
-
     let correctGuess: PocketImageRecord[] = $state([])
 
+
     const reset = () => {
+        ready =false
         matchPop = false
         gameOverPop = false
+        gameWonPop = false
         $gameHistory = []
         $selection = []
+        shareText = 'Share'
     }
     // shuffle images
     const shuffle = (images: PocketImageRecord[]) => {
@@ -46,21 +49,22 @@
         console.log('hint')
     }
 
-    const constructCorrectGuess = () => {
-        let correctGuess = $state({
-            name: '',
-            image: '',
-            story: '',
-        })
-
-        return correctGuess
+    const share = async () => {
+        try {
+            await navigator.clipboard.writeText(createShareData($gameHistory) || '')
+            console.log('Content copied to clipboard')
+            shareText = 'Copied'
+        } catch (err) {
+            console.error('Failed to copy: ', err)
+        }
     }
 
     const submit = async () => {
         // Object for history
         const guessData = {
-            images: [$selection[0].id, $selection[1].id],
+            images: $selection,
             correct: false,
+            timeStamp: new Date().toString(),
         }
         // Info for History
         if ($selection[0].expand.turtle.id == $selection[1].expand.turtle.id) {
@@ -87,6 +91,7 @@
             0
         ) {
             gameOverPop = true
+            console.log($gameHistory)
         }
         console.log(
             Number(config.guesses) -
@@ -146,6 +151,7 @@
                             }).length == 4
                         ) {
                             gameWonPop = true
+                            console.log($gameHistory)
                         }
                     }}>Keep Playing</Button
                 >
@@ -163,6 +169,11 @@
                     clicked={() => {
                         gameOverPop = false
                     }}>View</Button
+                >
+                <Button
+                    clicked={() => {
+                        share()
+                    }}>Share</Button
                 >
             </ButtonBox>
         </Splash>
@@ -185,7 +196,7 @@
     <div class="gameArea">
         {#if ready}
             <Board>
-                <div class="guesses">Match all 4 turtles!</div>
+                <div class="guesses">Match all 4 pairs of turtles!</div>
             </Board>
             <div
                 class="imageAreaWrapper"
@@ -208,7 +219,7 @@
                                 solved={$gameHistory.filter((guess) => {
                                     return (
                                         guess.images.some((thisImageId) => {
-                                            return thisImageId == image.id
+                                            return thisImageId.id == image.id
                                         }) && guess.correct
                                     )
                                 }).length > 0 ||
@@ -230,7 +241,7 @@
             </div>
             <Board>
                 <div class="guesses">
-                    Guesses Remaining:
+                    Mistakes Remaining:
                     <div class="dots">
                         {#each { length: Number(config.guesses) }, rank}
                             <div
@@ -259,6 +270,7 @@
                     disabled={$selection.length < 2}
                     style="orange">Submit</Button
                 >
+  
             </ButtonBox>
         {/if}
     </div>

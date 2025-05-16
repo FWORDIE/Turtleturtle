@@ -25,4 +25,4 @@ vite.config.ts.timestamp-*
 
 # Files
 /utils/Archive
-/utils/Archive turtle
+/utils/Archive/data

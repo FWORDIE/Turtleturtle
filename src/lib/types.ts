@@ -24,6 +24,8 @@ export type Pair = {
     difficultyType: 'easy' | 'med' | 'hard' | 'vHard' | 'random'
 }
 
+export type difficultyType = 'easy' | 'med' | 'hard' | 'vHard' | undefined
+
 export type ImageCSVData = {
     image_id: number
     identity: string
@@ -39,6 +41,7 @@ export type GameType = {
     pairs: Pair[]
     random: ImageType
     ids: string[]
+    id: string
 }
 
 export type GameData = {
@@ -60,7 +63,7 @@ export type PocketImageRecord = {
     height: number
     created: string
     updated: string
-    difficultyType: string
+    difficultyType: 'easy' | 'med' | 'hard' | 'vHard' | 'random'
     name: string
     hero: string | null
     story: string | null
@@ -80,7 +83,18 @@ export type PocketTurtleRecord = {
     created: string
     updated: string
 }
-export type Guesses = {
-    images: string[]
+export type Guess = {
+    images: PocketImageRecord[]
     correct: boolean
+    timeStamp: string
+}
+
+export type GuessesHistory = {
+    userId: string // Local Storage
+    gameId: string // Computed in utils
+    guesses: Guess[]
+    gameData: GameData
+    timeStart: string
+    timeEnd: string
+    solved: boolean
 }

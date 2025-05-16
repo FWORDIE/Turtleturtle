@@ -200,16 +200,25 @@ const generateScore = (imageA: ImageType, imageB: ImageType) => {
     // Orientation score
     let orientationScore = 0
     if (imageA.orientation == imageA.orientation) {
-        // Same day
+        // Same Orientation
         orientationScore = 1
     } else {
-        // Same month
+        // Differemt Orientation
         orientationScore = 2
     }
     if (
         imageA.orientation.includes('top') ||
         imageB.orientation.includes('top')
     ) {
+        // add 1 to score for 'top'
+        orientationScore++
+    }
+    if (
+        imageA.orientation.includes('front') ||
+        imageB.orientation.includes('front')
+    ) {
+        // add 2 to score for 'front'
+        orientationScore++
         orientationScore++
     }
 
@@ -366,10 +375,10 @@ const checkDups = (game: GameType) => {
     const randomId = game.random.id
     const randomTurtle = game.random.turtle
 
-    const otherIds = game.pairs.map((thisPair) => {
+    const otherIds = game.pairs.map((thisPair: Pair) => {
         return thisPair.id.split('-')
     })
-    const otherTurtles = game.pairs.map((thisPair) => {
+    const otherTurtles = game.pairs.map((thisPair: Pair) => {
         return thisPair.images[0].turtle
     })
 
@@ -433,6 +442,7 @@ const generateGames = async () => {
                 )
             ].images[0],
             ids: [],
+            id: '',
         }
 
         //Loop over each level
@@ -473,6 +483,7 @@ const generateGames = async () => {
         // If game passes check, add it to Array
         if (game.pairs.length == 4 && checkDups(game)) {
             game.ids = checkDups(game) as string[]
+            game.id = game.ids.join('-')
             games.push(game)
             x++
         }
@@ -488,12 +499,93 @@ const generateGames = async () => {
         }
     }
 
-    // TODO: REMOVE DUPE GAMES
     console.log('TOTAL GAMES: ', games.length)
     const file = await Deno.writeTextFile(
-        'allGames.json',
+        '../src/lib/gameData/allGames.json',
         JSON.stringify(games, null, 2)
     )
+
+    const specGames = {
+        easy: [],
+        med: [],
+        hard: [],
+        vHard: [],
+    }
+
+    for (let z = 0; z < difficulties.length; z++) {
+        maxDepthSearch = 2000
+        const difficultyLevel = difficulties[z]
+        console.log(difficultyLevel)
+        for (let x = 0; x < maxGames; ) {
+            let first = true
+
+            // Construct game with a random red herring
+            let game: GameType = {
+                pairs: [],
+                random: allPairData[
+                    difficulties[difficultyInc % difficulties.length]
+                ][
+                    randomIntFromInterval(
+                        0,
+                        allPairData[
+                            difficulties[difficultyInc % difficulties.length]
+                        ].length - 1
+                    )
+                ].images[0],
+                ids: [],
+                id: '',
+            }
+
+            //Loop over each level
+            for (let y = 0; y < 4; y++) {
+                // Rotate the difficulty array to search in
+
+                let diffcultyPairs = allPairData[difficultyLevel]
+
+                // If first make sure there is a named nurtle
+                if (first) {
+                    diffcultyPairs = allNamedPairs[difficultyLevel]
+                    first = false
+                }
+
+                // Assign a random pair
+                const thisPair =
+                    diffcultyPairs[
+                        randomIntFromInterval(0, diffcultyPairs.length - 1)
+                    ]
+
+                if (thisPair === undefined) {
+                    console.log('THIS PAIR IS UNDEFINED, You probs messed up')
+                }
+                
+                game.pairs.push(thisPair)
+            }
+
+            // If game passes check, add it to Array
+            if (game.pairs.length == 4 && checkDups(game)) {
+                game.ids = checkDups(game) as string[]
+                game.id = game.ids.join('-')
+                specGames[difficultyLevel].push(game)
+                x++
+            }
+
+            // Decriment max for hard stop
+            maxDepthSearch--
+            if (maxDepthSearch % (maxGames / 10) == 0) {
+                console.log(' ATTEMPTS REMAINING: ', maxDepthSearch)
+            }
+            // Break if hard stop is reached
+            if (maxDepthSearch < 0) {
+                break
+            }
+        }
+
+        console.log(`TOTAL ${difficultyLevel} GAMES: `, games.length)
+        const file = await Deno.writeTextFile(
+            `../src/lib/gameData/all${difficultyLevel}Games.json`,
+            JSON.stringify(specGames[difficultyLevel], null, 2)
+        )
+    }
 }
 
 const turtleUpdate = async () => {
@@ -520,14 +612,16 @@ const turtleUpdate = async () => {
     }
 
     // updates each entry with a story
-    for(let update of updates){
+    for (let update of updates) {
         try {
             console.log(update.stories)
-            const response = await pb
-                .collection('turtles')
-                .update(update.id,{
-                    stories:update.stories
-                }, { $autoCancel: false })
+            const response = await pb.collection('turtles').update(
+                update.id,
+                {
+                    stories: update.stories,
+                },
+                { $autoCancel: false }
+            )
         } catch (error) {
             console.log(error)
         }

@@ -28,7 +28,7 @@
         justify-content: center;
         width: calc(100% - (2 * var(--largePadding)));
         flex-wrap: wrap;
-        gap: var(--largePadding);
+        gap: var(--padding);
         z-index: 99;
     }
 
