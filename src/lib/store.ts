@@ -8,13 +8,29 @@ export const animationTime = writable(300)
 // Selection
 export const selection = writable<PocketImageRecord[]>([])
 
+// Current Game
+export const currentGame = writable<{
+    route: string
+    game: PocketImageRecord[]
+    gameHistory: Guess[]
+}>(
+    {
+        route: '',
+        game: [],
+        gameHistory: [],
+    }
+)
+
 // solved
 export const solved = writable<string[]>([])
 
 // quesses
 export const guesses = writable<number>(Number(config.guesses))
 
-// history object to upload
-export const gameHistory = writable<Guess[]>([])
-
 export const cheat = writable(false)
+
+// PlayerID
+export const playerId = writable<string>('')
+
+
+

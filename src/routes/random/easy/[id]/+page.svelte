@@ -5,6 +5,6 @@
     let { data }: { data: PageData } = $props()
 </script>
 
-{#key data.rawIds}
-<GameBoard images={data.images}></GameBoard>
+{#key data.images}
+<GameBoard images={data.images} rawIds={data.rawIds}></GameBoard>
 {/key}

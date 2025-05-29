@@ -31,6 +31,7 @@
 	"dependencies": {
 		"@sveltejs/adapter-node": "^5.2.12",
 		"moment": "^2.30.1",
+		"nanoid": "^5.1.5",
 		"pocketbase": "^0.26.0",
 		"scss": "^0.2.4"
 	}

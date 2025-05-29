@@ -64,6 +64,7 @@ export type PocketImageRecord = {
     created: string
     updated: string
     difficultyType: 'easy' | 'med' | 'hard' | 'vHard' | 'random'
+    styleDifficultyType: 'easy' | 'med' | 'hard' | 'vHard' | 'random'
     name: string
     hero: string | null
     story: string | null
@@ -89,11 +90,10 @@ export type Guess = {
     timeStamp: string
 }
 
-export type GuessesHistory = {
-    userId: string // Local Storage
-    gameId: string // Computed in utils
+export type completedGameData = {
+    playerId: string // Local Storage
     guesses: Guess[]
-    gameData: GameData
+    imageIds: string[]
     timeStart: string
     timeEnd: string
     solved: boolean

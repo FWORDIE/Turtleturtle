@@ -23,10 +23,10 @@
     .buttonBox {
         position: fixed;
         bottom: var(--largePadding);
-        left: var(--largePadding);
+        left: var(--padding);
         display: flex;
         justify-content: center;
-        width: calc(100% - (2 * var(--largePadding)));
+        width: calc(100% - (1 * var(--largePadding)));
         flex-wrap: wrap;
         gap: var(--padding);
         z-index: 99;

@@ -3,8 +3,8 @@
     import Background from '$lib/comps/background.svelte'
     import Title from '$lib/comps/utils/title.svelte'
     import '$lib/scss/global.scss'
-    import { animationTime, cheat } from '$lib/store'
-
+    import { animationTime, cheat, currentGame, playerId } from '$lib/store'
+    import { customAlphabet } from 'nanoid'
     let { children } = $props()
 
     // Tag
@@ -19,12 +19,36 @@
         home = page.route.id == '/'
     })
 
+    //enable cheat mode
     const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key == 'C') {
-            $cheat  = !$cheat
+            $cheat = !$cheat
         }
-        console.log(e.key)
     }
+
+    // If a game was being played get its data from local storage
+    $effect(() => {
+        const savedCurrentGame = localStorage.getItem('currentGame')
+        if (savedCurrentGame) {
+            $currentGame = JSON.parse(savedCurrentGame)
+        }
+    })
+
+    // Keep local storage upto date with current game
+    $effect(() => {
+        localStorage.setItem('currentGame', JSON.stringify($currentGame))
+    })
+
+    // handle player ids
+    $effect(() => {
+        let savedPlayerID = localStorage.getItem('playerID')
+        if (!savedPlayerID) {
+            const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvxyz', 20)
+            savedPlayerID = nanoid()
+            localStorage.setItem('playerID', savedPlayerID)
+        }
+        $playerId = savedPlayerID
+    })
 </script>
 
 <svelte:window onkeydown={(event) => handleKeyDown(event)} />

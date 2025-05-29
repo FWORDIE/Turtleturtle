@@ -14,23 +14,29 @@ export const GetGames = async (
     level: difficultyType
 ) => {
     let games: GameType[] = []
+    console.log(level)
 
     // Get Games depending on level or not is asked for
     switch (level) {
         case undefined:
             games = allGames as GameType[]
+            break
         case 'easy':
             games = easyGames as GameType[]
+            break
         case 'med':
             games = medGames as GameType[]
+            break
         case 'hard':
             games = hardGames as GameType[]
+            break
         case 'vHard':
             games = vHardGames as GameType[]
+            break
     }
 
     let game
-    
+
     if (id) {
         // random game
         game = games[games.length % Number(id)]
@@ -58,7 +64,8 @@ export const GetGames = async (
         .authWithPassword(POCKET_USER, POCKET_PASS)
 
     let images = []
-    for (let id of game.ids) {
+    for (const [index, val] of game.ids.entries()) {
+        const id = val
         let record = (await pb.collection('images').getOne(id, {
             expand: 'turtle',
         })) as PocketImageRecord
@@ -101,10 +108,32 @@ export const GetGames = async (
               ]
             : null
 
+        // Used to distinguish images when they all have the same diffuliculty
+        switch (true) {
+            case level == undefined:
+                record.styleDifficultyType = record.difficultyType
+                break
+            case index > 6:
+                record.styleDifficultyType = 'vHard'
+                break
+            case index > 4:
+                record.styleDifficultyType = 'hard'
+                break
+            case index > 2:
+                record.styleDifficultyType = 'med'
+                break
+            case index > 0:
+                record.styleDifficultyType = 'easy'
+                break
+            case index == 0:
+                record.styleDifficultyType = 'random'
+                break
+        }
+        console.log(record.styleDifficultyType, record.difficultyType)
         images.push(record)
     }
     return {
-        rawIds: game.ids as string[],
         images: images as PocketImageRecord[],
+        rawIds: game.ids,
     }
 }

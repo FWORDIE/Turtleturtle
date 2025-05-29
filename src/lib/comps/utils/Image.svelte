@@ -1,6 +1,6 @@
 <script lang="ts">
     import { getRandomArbitrary } from '$lib/Funcs'
-    import { gameHistory, selection } from '$lib/store'
+    import { selection } from '$lib/store'
     import type { PocketImageRecord, PocketTurtleRecord } from '$lib/types'
 
     let {
@@ -54,7 +54,7 @@
         
         style="transform: rotate({rotation}deg);
             border-color:var(--{solved || cheat
-            ? image.difficultyType
+            ? image.styleDifficultyType
             : $selection.some((thisImage) => {
                     return thisImage.id == image.id
                 })

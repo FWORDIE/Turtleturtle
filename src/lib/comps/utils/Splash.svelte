@@ -48,6 +48,7 @@
         max-height: 70dvh;
         text-align: center;
         overflow: auto;
+        gap: var(--halfPadding);
     }
     .darkenBackground {
         position: absolute;

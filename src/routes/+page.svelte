@@ -2,16 +2,24 @@
     import Board from '$lib/comps/utils/board.svelte'
     import Button from '$lib/comps/utils/Button.svelte'
     import ButtonBox from '$lib/comps/utils/buttonBox.svelte'
+    import { currentGame } from '$lib/store'
+    import config from '$lib/config.json'
 </script>
 
-<Board>The daily game about matching Sea Turtles!!!</Board>
+<Board>{config.tagline}</Board>
 
 <ButtonBox>
-    <Button url="/daily" style="orange">Play Daily!</Button>
+    <Button
+        url="/daily"
+        style={$currentGame.game.length > 0 ? undefined : 'orange'}
+        >Play Daily</Button
+    >
     <Button url="/random">Play Random</Button>
     <Button url="/about">About</Button>
+    {#if $currentGame.game.length > 0}
+        <Button url={$currentGame.route} style="orange">Continue</Button>
+    {/if}
 </ButtonBox>
 
 <style lang="scss">
-
 </style>

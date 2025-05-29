@@ -1,3 +1,5 @@
 {
-    "guesses": "3"
+    "guesses": "3",
+    "hint": "<h2>How To Play</h2><p>Your aim is to find the 4 pairs of images for 4 Turtles in the puzzle.</p><p>Select 2 images you think show the same turtle and tap 'Submit' to check your guess.</p><p>Find all four Turtle pairs without making 3 mistakes!</p><h2>Hint</h2><p>Turtle faces each have a unqiue pattern of scales, like a fingerprints. Look for these!</p><p>Each daily game has 4 pair diculties, and one random wildcard.</p>",
+    "tagline": "The daily game about matching Sea Turtles!!!"
 }

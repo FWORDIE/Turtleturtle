@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { PocketImageRecord } from '$lib/types'
+    import { page } from '$app/state'
     import { onMount } from 'svelte'
     import Image from './utils/Image.svelte'
     import ButtonBox from './utils/buttonBox.svelte'
@@ -7,51 +8,85 @@
     import { flip } from 'svelte/animate'
     import {
         animationTime,
-        gameHistory,
-        guesses,
         selection,
         cheat,
+        currentGame,
+        playerId,
+        solved,
     } from '$lib/store'
     import { fade, scale } from 'svelte/transition'
     import Board from './utils/board.svelte'
     import config from '$lib/config.json'
     import { createShareData, delay } from '$lib/Funcs'
     import Splash from './utils/Splash.svelte'
+    import { postGames } from '$lib/postGame'
+    import Hint from './utils/hint.svelte'
 
-    let { images }: { images: PocketImageRecord[] } = $props()
+    let { images, rawIds }: { images: PocketImageRecord[]; rawIds: string[] } =
+        $props()
 
     let recactiveImages = $state(images)
-
+    // various pop up sates
     let matchPop = $state(false)
     let gameOverPop = $state(false)
     let gameWonPop = $state(false)
+    let hintPop = $state(false)
     let ready = $state(false)
     let shareText = $state('Share')
+
+    // used to animate wrong answers
     let incorrects: string[] = $state([])
+
+    // used to highlight correct guesses
     let correctGuess: PocketImageRecord[] = $state([])
 
-
     const reset = () => {
-        ready =false
+        // Reset game history if not continuing
+        if (page.url.pathname != $currentGame.route) {
+            console.log('new game')
+            $currentGame = {
+                game: images,
+                route: page.url.pathname,
+                gameHistory: [],
+            }
+            $currentGame.gameHistory = []
+            console.log(answers)
+        }
+        ready = false
         matchPop = false
         gameOverPop = false
         gameWonPop = false
-        $gameHistory = []
+        hintPop = false
         $selection = []
         shareText = 'Share'
     }
+
+    // Derive number of answers
+    const answers = $derived({
+        wrong: $currentGame.gameHistory.filter((guess) => {
+            return !guess.correct
+        }).length,
+        correct: $currentGame.gameHistory.filter((guess) => {
+            return guess.correct
+        }).length,
+    })
+
     // shuffle images
     const shuffle = (images: PocketImageRecord[]) => {
         return images.sort(() => Math.random() - 0.5)
     }
 
+    // show or hide hint screen
     const hintToggle = () => {
-        console.log('hint')
+        hintPop = !hintPop
     }
 
+    // copy share info
     const share = async () => {
         try {
-            await navigator.clipboard.writeText(createShareData($gameHistory) || '')
+            await navigator.clipboard.writeText(
+                createShareData($currentGame.gameHistory) || ''
+            )
             console.log('Content copied to clipboard')
             shareText = 'Copied'
         } catch (err) {
@@ -64,13 +99,12 @@
         const guessData = {
             images: $selection,
             correct: false,
-            timeStamp: new Date().toString(),
+            timeStamp: new Date().toISOString(),
         }
         // Info for History
         if ($selection[0].expand.turtle.id == $selection[1].expand.turtle.id) {
             correctGuess = [...$selection]
             guessData.correct = true
-            console.log(correctGuess)
             matchPop = true
         } else {
             // Animate the incorrect answers
@@ -79,28 +113,22 @@
             incorrects = []
         }
 
-        $gameHistory = [...$gameHistory, guessData]
+        $currentGame.gameHistory = [...$currentGame.gameHistory, guessData]
         $selection = []
 
         // Game End Info
-        if (
-            Number(config.guesses) -
-                $gameHistory.filter((guess) => {
-                    return !guess.correct
-                }).length ==
-            0
-        ) {
+        if (Number(config.guesses) - answers.wrong <= 0) {
+            postGames($playerId, $currentGame.gameHistory, rawIds, false)
             gameOverPop = true
-            console.log($gameHistory)
         }
-        console.log(
-            Number(config.guesses) -
-                $gameHistory.filter((guess) => {
-                    return !guess.correct
-                }).length
-        )
     }
 
+    // log answer history
+    $effect(() => {
+        console.log(answers)
+    })
+
+    // do this on launch
     onMount(() => {
         reset()
         recactiveImages = shuffle(images)
@@ -110,9 +138,11 @@
 </script>
 
 {#key images}
+    <!-- pop up for correctly matched pair -->
     {#if matchPop}
         <Splash>
             <div class="splashImageArea" class:split={!correctGuess[0].hero}>
+                <!-- show hero image if present -->
                 {#if correctGuess[0].hero}
                     <Image
                         image={correctGuess[0]}
@@ -122,6 +152,8 @@
                         incorrect={false}
                     ></Image>
                 {:else}
+                    <!-- else show the pair -->
+
                     {#each correctGuess as guess}
                         <div class="imageWrapper">
                             <Image
@@ -140,64 +172,61 @@
             {#if correctGuess[0].story}
                 <p>{correctGuess[0].story}</p>
             {/if}
-
             <ButtonBox>
                 <Button
                     clicked={() => {
                         matchPop = false
-                        if (
-                            $gameHistory.filter((guess) => {
-                                return guess.correct
-                            }).length == 4
-                        ) {
+                        if (answers.correct >= 4) {
                             gameWonPop = true
-                            console.log($gameHistory)
+                            postGames($playerId, $currentGame.gameHistory, rawIds, true)
                         }
                     }}>Keep Playing</Button
                 >
             </ButtonBox>
         </Splash>
     {/if}
+    <!-- pop up for game over -->
     {#if gameOverPop}
         <Splash>
             <h2>Game Over!</h2>
             <p>Unlucky, better luck next time!</p>
             <ButtonBox>
-                <Button url="/">Home</Button>
-                <Button url="/random">Random Game</Button>
                 <Button
                     clicked={() => {
                         gameOverPop = false
-                    }}>View</Button
-                >
-                <Button
-                    clicked={() => {
-                        share()
-                    }}>Share</Button
+                    }}>View Board</Button
                 >
             </ButtonBox>
         </Splash>
     {/if}
+    <!-- pop up when game is won  -->
     {#if gameWonPop}
         <Splash>
             <h2>Congratulations!</h2>
             <p>You found all the matches!</p>
             <ButtonBox>
-                <Button url="/">Home</Button>
-                <Button url="/random">Random Game</Button>
                 <Button
                     clicked={() => {
                         gameWonPop = false
-                    }}>View</Button
+                    }}>View Board</Button
                 >
             </ButtonBox>
         </Splash>
     {/if}
+    <!-- pop up for hint and how to  -->
+    {#if hintPop}
+        <Hint bind:hintPop></Hint>
+    {/if}
+
+    <!-- game area  -->
     <div class="gameArea">
         {#if ready}
-            <Board>
-                <div class="guesses">Match all 4 pairs of turtles!</div>
-            </Board>
+            <!-- hide hint text at end of game  -->
+            {#if answers.wrong < 3 && answers.correct < 4}
+                <Board>
+                    <div class="guesses">Match all 4 pairs of turtles!</div>
+                </Board>
+            {/if}
             <div
                 class="imageAreaWrapper"
                 in:scale|global={{
@@ -209,6 +238,7 @@
                 out:fade|global={{ duration: $animationTime / 2 }}
             >
                 <div class="imageArea">
+                    <!-- display all game images  -->
                     {#each recactiveImages as image (image.id)}
                         <div
                             class="imageWrapper"
@@ -216,21 +246,19 @@
                         >
                             <Image
                                 {image}
-                                solved={$gameHistory.filter((guess) => {
-                                    return (
-                                        guess.images.some((thisImageId) => {
-                                            return thisImageId.id == image.id
-                                        }) && guess.correct
-                                    )
-                                }).length > 0 ||
-                                    Number(config.guesses) -
-                                        $gameHistory.filter((guess) => {
-                                            return !guess.correct
-                                        }).length ==
-                                        0 ||
-                                    $gameHistory.filter((guess) => {
-                                        return guess.correct
-                                    }).length == 4}
+                                solved={$currentGame.gameHistory.filter(
+                                    (guess) => {
+                                        return (
+                                            guess.images.some((thisImageId) => {
+                                                return (
+                                                    thisImageId.id == image.id
+                                                )
+                                            }) && guess.correct
+                                        )
+                                    }
+                                ).length > 0 ||
+                                    answers.wrong >= 3 ||
+                                    answers.correct >= 4}
                                 incorrect={incorrects.includes(image.id)}
                                 hero={false}
                                 cheat={$cheat}
@@ -247,10 +275,7 @@
                             <div
                                 class="dot"
                                 class:failed={rank >=
-                                    Number(config.guesses) -
-                                        $gameHistory.filter((guess) => {
-                                            return !guess.correct
-                                        }).length}
+                                    Number(config.guesses) - answers.wrong}
                             ></div>
                         {/each}
                     </div>
@@ -258,19 +283,29 @@
             </Board>
 
             <ButtonBox>
-                <Button url="/">Menu</Button>
-                <Button clicked={() => hintToggle()}>Hint</Button>
-                <Button
-                    clicked={() => {
-                        recactiveImages = shuffle(images)
-                    }}>Shuffle</Button
-                >
-                <Button
-                    clicked={() => submit()}
-                    disabled={$selection.length < 2}
-                    style="orange">Submit</Button
-                >
-  
+                {#if !hintPop && !matchPop}
+                    <Button url="/">Menu</Button>
+                    {#if answers.correct >= 4 || answers.wrong >= 3}
+                        <Button url="/random">Random Game</Button>
+                        {#if page.url.pathname == '/daily'}
+                            <Button style="orange" clicked={() => share()}
+                                >{shareText}</Button
+                            >
+                        {/if}
+                    {:else}
+                        <Button clicked={() => hintToggle()}>Hint</Button>
+                        <Button
+                            clicked={() => {
+                                recactiveImages = shuffle(images)
+                            }}>Shuffle</Button
+                        >
+                        <Button
+                            clicked={() => submit()}
+                            disabled={$selection.length < 2}
+                            style="orange">Submit</Button
+                        >
+                    {/if}
+                {/if}
             </ButtonBox>
         {/if}
     </div>

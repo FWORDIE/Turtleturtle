@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit'
-import allGames from '$lib/allGames.json'
+import allGames from '$lib/gameData/alleasyGames.json'
+
 import { randomIntFromInterval } from '$lib/Funcs'
 import type { GameType } from '$lib/types'
 
@@ -8,5 +9,5 @@ export function load() {
     // Get aLL Games From ARRAY
     const games = allGames as GameType[]
     let game = randomIntFromInterval(0, games.length - 1)
-    redirect(307, 'random/' + game)
+    redirect(307, 'easy/' + game)
 }
