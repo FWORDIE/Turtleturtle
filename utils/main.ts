@@ -22,9 +22,9 @@ const weights = {
 // diffculty thresholds
 const scoreThresholds = {
     easy: 0,
-    med: 4.5,
+    med: 4,
     hard: 7,
-    vHard: 9.5,
+    vHard: 11,
 }
 
 // Set up pocketbase instance (See env)
@@ -404,7 +404,7 @@ const generateGames = async () => {
     let difficultyInc = 0
 
     // Array for all Games
-    const games: GameType[] = []
+    let games: GameType[] = []
     const difficulties = ['easy', 'med', 'hard', 'vHard']
 
     // Grab pair data
@@ -557,7 +557,7 @@ const generateGames = async () => {
                 if (thisPair === undefined) {
                     console.log('THIS PAIR IS UNDEFINED, You probs messed up')
                 }
-                
+
                 game.pairs.push(thisPair)
             }
 
@@ -566,6 +566,14 @@ const generateGames = async () => {
                 game.ids = checkDups(game) as string[]
                 game.id = game.ids.join('-')
                 specGames[difficultyLevel].push(game)
+                // console.log(
+                //     difficultyLevel,
+                //     (game.pairs[0].difficulty +
+                //         game.pairs[0].difficulty +
+                //         game.pairs[0].difficulty +
+                //         game.pairs[0].difficulty) /
+                //         4
+                // )
                 x++
             }
 
@@ -580,7 +588,7 @@ const generateGames = async () => {
             }
         }
 
-        console.log(`TOTAL ${difficultyLevel} GAMES: `, games.length)
+        console.log(`TOTAL ${difficultyLevel} GAMES: `, specGames[difficultyLevel].length)
         const file = await Deno.writeTextFile(
             `../src/lib/gameData/all${difficultyLevel}Games.json`,
             JSON.stringify(specGames[difficultyLevel], null, 2)
