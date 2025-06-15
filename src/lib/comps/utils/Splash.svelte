@@ -10,7 +10,7 @@
 {#key getRandomArbitrary(0, 99)}
     <div
         class="splashScreen"
-        style="transform: rotate({rotation}deg);"
+        style="transform: rotate({rotation}deg) translate(0,-50%);"
         in:scale|global={{
             duration: $animationTime,
             delay: $animationTime,
@@ -33,11 +33,11 @@
 
 <style lang="scss">
     .splashScreen {
-        position: absolute;
+        position: fixed;
         z-index: 9;
         background-color: var(--lightBlue);
         width: calc(100% - 2 * var(--largePadding));
-        max-width: calc(500px - 2 * var(--largePadding));
+        max-width: calc(500px);
         display: flex;
         align-items: center;
         justify-content: safe center;
@@ -48,10 +48,11 @@
         max-height: 70dvh;
         text-align: center;
         overflow: auto;
+        top: 50%;
         gap: var(--halfPadding);
     }
     .darkenBackground {
-        position: absolute;
+        position: fixed;
         top: 0;
         z-index: 8;
         height: 100dvh;

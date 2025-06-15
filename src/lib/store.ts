@@ -13,13 +13,13 @@ export const currentGame = writable<{
     route: string
     game: PocketImageRecord[]
     gameHistory: Guess[]
-}>(
-    {
-        route: '',
-        game: [],
-        gameHistory: [],
-    }
-)
+    gameDate: string
+}>({
+    route: '',
+    game: [],
+    gameHistory: [],
+    gameDate: '',
+})
 
 // solved
 export const solved = writable<string[]>([])
@@ -31,6 +31,3 @@ export const cheat = writable(false)
 
 // PlayerID
 export const playerId = writable<string>('')
-
-
-

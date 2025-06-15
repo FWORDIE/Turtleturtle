@@ -3,10 +3,9 @@
     import Button from '$lib/comps/utils/Button.svelte'
     import ButtonBox from '$lib/comps/utils/buttonBox.svelte'
     import { currentGame } from '$lib/store'
-    import config from '$lib/config.json'
 </script>
 
-<Board>{config.tagline}</Board>
+<Board>The daily game about matching Sea Turtles!!!</Board>
 
 <ButtonBox>
     <Button

@@ -22,7 +22,7 @@ const weights = {
 // diffculty thresholds
 const scoreThresholds = {
     easy: 0,
-    med: 4,
+    med: 4.5,
     hard: 7,
     vHard: 11,
 }
@@ -199,7 +199,7 @@ const generateScore = (imageA: ImageType, imageB: ImageType) => {
 
     // Orientation score
     let orientationScore = 0
-    if (imageA.orientation == imageA.orientation) {
+    if (imageA.orientation == imageB.orientation) {
         // Same Orientation
         orientationScore = 1
     } else {
@@ -644,7 +644,7 @@ if (import.meta.main) {
     // await uploadPictures()
 
     // // make Pairs (takes along time...)
-    // await generatePairs()
+    await generatePairs()
 
     // make a set of games from the pairs
     await generateGames()

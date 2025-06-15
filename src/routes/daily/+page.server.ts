@@ -2,5 +2,5 @@ import { GetGames } from '$lib/getGames.server'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = (async ({ params }) => {
-    return await GetGames(null)
+    return await GetGames(undefined,undefined)
 }) satisfies PageServerLoad

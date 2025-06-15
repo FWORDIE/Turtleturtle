@@ -4,14 +4,14 @@
     text-decoration: none;
 
     // Font Sizes
-    --font-size-xsm: clamp(0.56rem, 0.18vw + 0.52rem, 0.74rem);
-    --font-size-sm: clamp(0.7rem, 0.26vw + 0.63rem, 0.96rem);
-    --font-size-base: clamp(0.88rem, 0.5vw + 0.78rem, 1.25rem);
-    --font-size-md: clamp(1.09rem, 0.53vw + 0.96rem, 1.63rem);
-    --font-size-lg: clamp(1.37rem, 0.75vw + 1.18rem, 2.11rem);
-    --font-size-xl: clamp(1.71rem, 1.04vw + 1.45rem, 2.75rem);
-    --font-size-xxl: clamp(2.14rem, 1.43vw + 1.78rem, 3.57rem);
-    --font-size-xxxl: clamp(2.67rem, 1.97vw + 2.18rem, 4.64rem);
+    --font-size-xsm: clamp(0.56rem, 0.18vw + 0.52rem, 0.7rem);
+    --font-size-sm: clamp(0.7rem, 0.26vw + 0.63rem, 0.9rem);
+    --font-size-base: clamp(0.88rem, 0.5vw + 0.78rem, 1.1rem);
+    --font-size-md: clamp(1.09rem, 0.53vw + 0.96rem, 1.2rem);
+    --font-size-lg: clamp(1.37rem, 0.75vw + 1.18rem, 1.4rem);
+    --font-size-xl: clamp(1.71rem, 1.04vw + 1.45rem, 2rem);
+    --font-size-xxl: clamp(2.14rem, 1.43vw + 1.78rem, 2.5rem);
+    --font-size-xxxl: clamp(2.67rem, 1.97vw + 2.18rem, 3rem);
     --baseFont: var(--font-size-base);
 
     // Padding
@@ -19,7 +19,11 @@
     --halfPadding: calc(0.5 * var(--padding));
     --quatPadding: calc(0.25 * var(--padding));
     --largePadding: calc(2 * var(--padding));
-    --extraLargePadding: calc(3 * var(--padding));
+    --extraLargePadding: clamp(
+        calc(2 * var(--padding)),
+        (3 * var(--padding)),
+        40px
+    );
     --extraextraLargePadding: calc(4 * var(--padding));
     --radius: var(--padding);
 
@@ -35,7 +39,7 @@
     --easy: #f0c639;
     --med: #39a2ed;
     --hard: #d453cf;
-    --vHard: #416B57;
+    --vHard: #416b57;
     --random: var(--white);
 
     color: var(--black);
@@ -126,4 +130,9 @@ h2 {
 
 p {
     margin-bottom: var(--padding);
+}
+
+a {
+    color: var(--orange);
+    text-decoration: none;
 }

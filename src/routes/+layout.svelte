@@ -28,9 +28,22 @@
 
     // If a game was being played get its data from local storage
     $effect(() => {
+        const lastDate = localStorage.getItem('lastDate')
+
         const savedCurrentGame = localStorage.getItem('currentGame')
+
+        // current current date
+        const d = new Date()
+        const t = d.getTime()
+        const days = Math.floor(t / 86400000)
+
         if (savedCurrentGame) {
-            $currentGame = JSON.parse(savedCurrentGame)
+            let savedGame = JSON.parse(savedCurrentGame)
+            console.log(savedGame.gameDate)
+            //check if this game was from today
+            if (savedGame.gameDate == days.toString()) {
+                $currentGame = savedGame
+            }
         }
     })
 
@@ -43,7 +56,10 @@
     $effect(() => {
         let savedPlayerID = localStorage.getItem('playerID')
         if (!savedPlayerID) {
-            const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvxyz', 20)
+            const nanoid = customAlphabet(
+                '1234567890abcdefghijklmnopqrstuvxyz',
+                20
+            )
             savedPlayerID = nanoid()
             localStorage.setItem('playerID', savedPlayerID)
         }
@@ -88,6 +104,7 @@
             width: 100%;
             padding-bottom: calc(4 * var(--padding));
             transition: flex var(--animationTime) ease;
+            gap: var(--extraLargePadding);
         }
         .items {
             transition: flex-grow var(--animationTime) ease;

@@ -6,6 +6,7 @@
     import ButtonBox from './utils/buttonBox.svelte'
     import Button from './utils/Button.svelte'
     import { flip } from 'svelte/animate'
+    import facts from '$lib/facts.json'
     import {
         animationTime,
         selection,
@@ -17,10 +18,11 @@
     import { fade, scale } from 'svelte/transition'
     import Board from './utils/board.svelte'
     import config from '$lib/config.json'
-    import { createShareData, delay } from '$lib/Funcs'
+    import { createShareData, delay, randomIntFromInterval } from '$lib/Funcs'
     import Splash from './utils/Splash.svelte'
     import { postGames } from '$lib/postGame'
     import Hint from './utils/hint.svelte'
+    import { json } from '@sveltejs/kit'
 
     let { images, rawIds }: { images: PocketImageRecord[]; rawIds: string[] } =
         $props()
@@ -44,13 +46,19 @@
         // Reset game history if not continuing
         if (page.url.pathname != $currentGame.route) {
             console.log('new game')
+
+            // set gameDate
+            const d = new Date()
+            const t = d.getTime()
+            const days = Math.floor(t / 86400000)
+
             $currentGame = {
                 game: images,
                 route: page.url.pathname,
                 gameHistory: [],
+                gameDate: days.toString(),
             }
-            $currentGame.gameHistory = []
-            console.log(answers)
+            ;($currentGame.gameHistory = []), console.log(answers)
         }
         ready = false
         matchPop = false
@@ -126,10 +134,12 @@
     // log answer history
     $effect(() => {
         console.log(answers)
+        console.log(images)
     })
 
     // do this on launch
     onMount(() => {
+        console.log(facts)
         reset()
         recactiveImages = shuffle(images)
         ready = true
@@ -171,6 +181,8 @@
             <p>Well Done, you found {correctGuess[0].name}</p>
             {#if correctGuess[0].story}
                 <p>{correctGuess[0].story}</p>
+            {:else}
+                <p>{facts[randomIntFromInterval(0, facts.length - 1)]}</p>
             {/if}
             <ButtonBox>
                 <Button
@@ -178,7 +190,12 @@
                         matchPop = false
                         if (answers.correct >= 4) {
                             gameWonPop = true
-                            postGames($playerId, $currentGame.gameHistory, rawIds, true)
+                            postGames(
+                                $playerId,
+                                $currentGame.gameHistory,
+                                rawIds,
+                                true
+                            )
                         }
                     }}>Keep Playing</Button
                 >
@@ -371,7 +388,7 @@
     }
     .splashImageArea {
         position: relative;
-        height: 25dvh;
+        min-height: 25dvh;
         margin-bottom: var(--largePadding);
         width: 100%;
         display: flex;
