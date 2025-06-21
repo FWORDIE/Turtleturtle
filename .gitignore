@@ -26,3 +26,4 @@ vite.config.ts.timestamp-*
 # Files
 /utils/Archive/*
 /utils/Archive/data
+/utils/Archive
