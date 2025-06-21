@@ -39,10 +39,10 @@ const authData = await pb
     )
 
 // This Function uploads all turtle to the pocketbase
-const uploadTurtles = async () => {
+const uploadTurtles = async (location: string) => {
     // construct a list of folders that have hero images
-    let folders: string[] = []
-    for await (const walkEntry of walk('Archive/Poster photos')) {
+    let heroFolders: string[] = []
+    for await (const walkEntry of walk(location + '/poster')) {
         const type = walkEntry.isSymlink
             ? 'symlink'
             : walkEntry.isFile
@@ -50,12 +50,45 @@ const uploadTurtles = async () => {
               : 'directory'
 
         if (type == 'directory') {
-            folders.push(walkEntry.path)
+            heroFolders.push(walkEntry.path)
         }
     }
 
+    // construct an array of stories
+    let storyArray: {
+        id: string
+        stories: string[]
+    }[] = []
+    for await (const walkEntry of walk(location + '/stories')) {
+        const type = walkEntry.isSymlink
+            ? 'symlink'
+            : walkEntry.isFile
+              ? 'file'
+              : 'directory'
+
+        if (type == 'file') {
+            let story = {
+                id: walkEntry.name,
+                // must be TXT FILES!!!!
+                // splits on line break
+                stories: (await Deno.readTextFile(walkEntry.path))
+                    .split('\n')
+                    .filter((item) => item),
+            }
+            storyArray.push(story)
+        }
+    }
+
+    // get current Records for update/create
+    const currentRecords = await pb.collection('turtles').getFullList({})
+
+    // just their IDs
+    const currentRecordIds = currentRecords.map((record) => {
+        return record.id
+    })
+
     // parse csv file for all turtles to upload
-    const data = parse(await Deno.readTextFile('Archive/Ids-Names.csv'), {
+    const data = parse(await Deno.readTextFile(location + '/idNames.csv'), {
         columns: ['id', 'name'],
     })
 
@@ -63,13 +96,13 @@ const uploadTurtles = async () => {
     for (let x = 0; x < data.length; x++) {
         const file = {
             id: data[x].id,
-            story: 'test',
+            story: [] as string[],
             name: data[x].name,
             hero: [] as Blob[],
         }
 
         // checks if there are hero images to upload
-        for (const folder of folders) {
+        for (const folder of heroFolders) {
             if (folder.includes(file.id)) {
                 for await (const walkEntry of walk(folder)) {
                     const type = walkEntry.isSymlink
@@ -85,14 +118,34 @@ const uploadTurtles = async () => {
                 }
             }
         }
-        try {
-            const response = await pb
-                .collection('turtles')
-                .create(file, { $autoCancel: false })
-        } catch (error) {
-            console.log(error)
+
+        // checks if there are stories  to upload
+        for (const storyItem of storyArray) {
+            if (storyItem.id.includes(file.id)) {
+                file.story = storyItem.stories
+            }
         }
-        //uploads to pocket base
+
+        // Check if this is new or an update
+        if (currentRecordIds.includes(file.id)) {
+            // updates each exisitng record
+            try {
+                const response = await pb
+                    .collection('turtles')
+                    .update(file.id, file, { $autoCancel: false })
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            //uploads new record to pocket base
+            try {
+                const response = await pb
+                    .collection('turtles')
+                    .create(file, { $autoCancel: false })
+            } catch (error) {
+                console.log(error)
+            }
+        }
 
         // Delay becuase Pocketbase was struggling
         await delay(100)
@@ -100,13 +153,13 @@ const uploadTurtles = async () => {
 }
 
 // This Function uploads all images to the pocketbase
-const uploadPictures = async () => {
+const uploadPictures = async (location: string) => {
     // For logging
     let imagesSent = 0
     let imagesRegected = 0
 
     // Grab CSV data
-    const data = parse(await Deno.readTextFile('Archive/metadata.csv'), {
+    const data = parse(await Deno.readTextFile(location + '/metaData.csv'), {
         skipFirstRow: true,
         strip: true,
     })
@@ -114,38 +167,70 @@ const uploadPictures = async () => {
     // Loop over data
     for (let x = 0; x < data.length; x++) {
         const thisData = data[x]
-        const imageData = await Deno.readFile(`Archive/heads/${thisData.path}`)
-        const blob = new Blob([imageData])
-
-        // construct the file to be uploaded
-        const file = {
-            id: thisData.path.replace('.jpg', '').replace('.jpeg', ''),
-            turtle: thisData.identity,
-            image_num: Number.parseFloat(thisData.image_id),
-            taken: thisData.date,
-            orientation: thisData.orientation,
-            clarity: Number.parseFloat(thisData.clarity),
-            width: Number.parseFloat(thisData.width),
-            height: Number.parseFloat(thisData.height),
-            image: blob,
-        }
-
-        if (file.width > threshold && file.height > threshold) {
-            try {
-                const response = await pb
-                    .collection('images')
-                    .create(file, { $autoCancel: false })
-            } catch (error) {
-                console.log(error)
+        try {
+            const imageData = await Deno.readFile(
+                location + `/heads/${thisData.path}`
+            )
+            const blob = new Blob([imageData])
+            var regex = new RegExp(/^[a-z0-9]+$/)
+            let oldId = thisData.path.replace('.jpg', '').replace('.jpeg', '')
+            let id = undefined
+            if (regex.test(oldId)) {
+                id = oldId
+            }
+            // construct the file to be uploaded
+            const file = {
+                id: id,
+                turtle: thisData.identity,
+                image_num: Number.parseFloat(thisData.image_id) || null,
+                taken: thisData.date,
+                orientation: thisData.orientation,
+                clarity: Number.parseFloat(thisData.clarity),
+                width: Number.parseFloat(thisData.width),
+                height: Number.parseFloat(thisData.height),
+                image: blob,
+                old_Name: oldId,
             }
 
-            imagesSent++
-            await delay(100)
-        } else {
-            imagesRegected++
+            if (file.width > threshold && file.height > threshold) {
+                try {
+                    const response = await pb
+                        .collection('images')
+                        .create(file, { $autoCancel: false })
+                } catch (error) {
+                    console.log(error)
+                }
+
+                imagesSent++
+                await delay(100)
+            } else {
+                imagesRegected++
+            }
+        } catch (error) {
+            console.log(error)
         }
-        console.log('Sent:', imagesSent, 'Reg: ', imagesRegected)
     }
+}
+
+const uploadNewData = async () => {
+    // EDIT THIS Location to your data in Archive
+    const folder = 'Archive/new'
+    // Folder Layout
+    // - Folder Name
+    //      - metadata.csv
+    //      - idNames.csv
+    //      - data
+    //          - heads
+    //              - name.jpg ...
+    //          - poster
+    //              - Turtle Id ...
+    //                  - name.jpg ...
+    //          - stories
+    //              - TurtleId.txt ... (seperate multiple statements with line breaks)
+
+    await uploadTurtles(folder)
+
+    await uploadPictures(folder)
 }
 
 const genHash = (ids: string[]) => {
@@ -588,7 +673,10 @@ const generateGames = async () => {
             }
         }
 
-        console.log(`TOTAL ${difficultyLevel} GAMES: `, specGames[difficultyLevel].length)
+        console.log(
+            `TOTAL ${difficultyLevel} GAMES: `,
+            specGames[difficultyLevel].length
+        )
         const file = await Deno.writeTextFile(
             `../src/lib/gameData/all${difficultyLevel}Games.json`,
             JSON.stringify(specGames[difficultyLevel], null, 2)
@@ -596,6 +684,7 @@ const generateGames = async () => {
     }
 }
 
+// DO NOT USE - > see uploadNewData
 const turtleUpdate = async () => {
     // construct a list of folders that have hero images
     let updates: any[] = []
@@ -644,11 +733,13 @@ if (import.meta.main) {
     // await uploadPictures()
 
     // // make Pairs (takes along time...)
-    await generatePairs()
+    // await generatePairs()
 
-    // make a set of games from the pairs
-    await generateGames()
+    // // make a set of games from the pairs
+    // await generateGames()
 
     // //updat turtles with stories
     // await turtleUpdate()
+
+    await uploadNewData()
 }

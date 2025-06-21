@@ -4,3 +4,13 @@
 
  - Frieship video about pocket base Auth: https://www.youtube.com/watch?v=gUYBFDPZ5qk
  - Mailserver: https://www.mailersend.com
+
+ TODO
+ - About Section
+    - Add Science, see slack
+ {% comment %} - Submit to Check {% endcomment %}
+ {% comment %} - Mixed not highlighted {% endcomment %}
+ - Account for server
+ - Editing Content on github
+ {% comment %} - Random IDs {% endcomment %}
+ - Domain Changes

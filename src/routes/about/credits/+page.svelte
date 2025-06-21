@@ -31,6 +31,7 @@
 <ButtonBox>
     <Button url="/" style="orange">Home</Button>
     <Button url="/about">About</Button>
+    <Button url="/about/science">Science</Button>
     <Button url="mailto:k.papafitsoros@qmul.ac.uk?subject=TurtleTurtle"
         >Contact</Button
     ></ButtonBox

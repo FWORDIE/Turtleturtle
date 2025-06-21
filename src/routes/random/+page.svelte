@@ -11,7 +11,7 @@
         <Button url="/random/med">Medium</Button>
         <Button url="/random/hard">Hard</Button>
         <Button url="/random/expert">Expert</Button>
-        <Button url="/random/mixed" style="orange">Mixed</Button>
+        <Button url="/random/mixed">Mixed</Button>
     </ButtonBox>
 </Splash>
 <ButtonBox>

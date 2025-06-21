@@ -319,7 +319,7 @@
                         <Button
                             clicked={() => submit()}
                             disabled={$selection.length < 2}
-                            style="orange">Submit</Button
+                            style="orange">Check</Button
                         >
                     {/if}
                 {/if}
