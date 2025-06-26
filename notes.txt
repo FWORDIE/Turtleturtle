@@ -6,8 +6,8 @@
  - Mailserver: https://www.mailersend.com
 
  TODO
- - About Section
-    - Add Science, see slack
+ {% comment %} - About Section {% endcomment %}
+    {% comment %} - Add Science, see slack {% endcomment %}
  {% comment %} - Submit to Check {% endcomment %}
  {% comment %} - Mixed not highlighted {% endcomment %}
  - Account for server
